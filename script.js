@@ -5,6 +5,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const botonAgregar = document.getElementById("add-task-btn");
     const listaTareas = document.getElementById("task-list");
 
+    // TU PARTE (COMODÍN): Elementos del contador
+    const contadorCompletadas = document.getElementById("completed-count");
+    const contadorTotal = document.getElementById("total-count");
+
+    // TU PARTE (COMODÍN): Función para actualizar los números
+    function actualizarContador() {
+        const totalTareas = listaTareas.querySelectorAll("li").length;
+        const tareasCompletadas = listaTareas.querySelectorAll("li.completada").length;
+
+        contadorTotal.textContent = totalTareas;
+        contadorCompletadas.textContent = tareasCompletadas;
+    }
+
     function agregarTarea() {
         const textoTarea = entradaTarea.value.trim();
         const fechaTarea = entradaFecha.value; 
@@ -26,18 +39,24 @@ document.addEventListener("DOMContentLoaded", () => {
         // Limpiar campos después de agregar
         entradaTarea.value = "";
         entradaFecha.value = "";
+        
+        // TU PARTE: Actualizar contador tras agregar
+        actualizarContador();
+        
         entradaTarea.focus();
     }
 
     function crearElementoTarea(textoTarea, fechaTarea) {
         const nuevaTarea = document.createElement("li");
 
+        // TU PARTE: Agregamos el botón de completar a la estructura de tu compañero
         nuevaTarea.innerHTML = `
             <span class="tarea-texto">${textoTarea}</span>
             <span class="tarea-fecha" style="margin-left: 10px; color: #888; font-size: 0.9em;">
                 📅 ${fechaTarea}
             </span>
             <span class="tarea-acciones" style="margin-left: 10px;">
+                <button class="btn-completar" style="margin-right: 5px;">✅</button>
                 <button class="btn-editar" style="margin-right: 5px;">✏️ Editar</button>
                 <button class="btn-eliminar">🗑️ Eliminar</button>
             </span>
@@ -46,20 +65,33 @@ document.addEventListener("DOMContentLoaded", () => {
         listaTareas.appendChild(nuevaTarea);
     }
 
-    // --- ELIMINAR Y ACTUALIZAR TAREAS ---
-    // Usamos delegación de eventos: escuchamos los clicks en la lista completa,
-    // así funciona para tareas ya existentes y para las que se agreguen después.
+    // --- ELIMINAR, ACTUALIZAR Y COMPLETAR TAREAS ---
     listaTareas.addEventListener("click", (evento) => {
         const elemento = evento.target;
         const tareaLi = elemento.closest("li");
 
         if (!tareaLi) return;
 
+        // MARCAR COMO COMPLETADA (TU PARTE - COMODÍN)
+        if (elemento.classList.contains("btn-completar")) {
+            tareaLi.classList.toggle("completada");
+            // Cambiamos el estilo para tacharla visualmente
+            if (tareaLi.classList.contains("completada")) {
+                tareaLi.style.textDecoration = "line-through";
+                tareaLi.style.opacity = "0.6";
+            } else {
+                tareaLi.style.textDecoration = "none";
+                tareaLi.style.opacity = "1";
+            }
+            actualizarContador(); // Actualizamos los números
+        }
+
         // ELIMINAR
         if (elemento.classList.contains("btn-eliminar")) {
             const confirmar = confirm("¿Seguro que deseas eliminar esta tarea?");
             if (confirmar) {
                 tareaLi.remove();
+                actualizarContador(); // TU PARTE: Actualizar contador tras borrar
             }
         }
 
@@ -68,14 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const spanTexto = tareaLi.querySelector(".tarea-texto");
             const spanFecha = tareaLi.querySelector(".tarea-fecha");
 
-            // Evitamos abrir edición doble si ya está en modo edición
             if (tareaLi.querySelector(".input-editar-texto")) return;
 
             const textoActual = spanTexto.textContent;
-            // Extraemos solo la fecha (sin el emoji y espacios)
             const fechaActual = spanFecha.textContent.replace("📅", "").trim();
 
-            // Creamos inputs para editar en el lugar
             const inputTexto = document.createElement("input");
             inputTexto.type = "text";
             inputTexto.value = textoActual;
@@ -92,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
             botonGuardar.textContent = "💾 Guardar";
             botonGuardar.className = "btn-guardar";
 
-            // Reemplazamos temporalmente el contenido del <li>
             tareaLi.innerHTML = "";
             tareaLi.appendChild(inputTexto);
             tareaLi.appendChild(inputFecha);
@@ -118,7 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 tareaLi.innerHTML = "";
-                // Reconstruimos el <li> con el nuevo contenido
                 const spanTextoNuevo = document.createElement("span");
                 spanTextoNuevo.className = "tarea-texto";
                 spanTextoNuevo.textContent = nuevoTexto;
@@ -133,7 +160,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const spanAcciones = document.createElement("span");
                 spanAcciones.className = "tarea-acciones";
                 spanAcciones.style.marginLeft = "10px";
+                
+                // TU PARTE: Se asegura de que el botón ✅ reaparezca al guardar cambios
                 spanAcciones.innerHTML = `
+                    <button class="btn-completar" style="margin-right: 5px;">✅</button>
                     <button class="btn-editar" style="margin-right: 5px;">✏️ Editar</button>
                     <button class="btn-eliminar">🗑️ Eliminar</button>
                 `;
