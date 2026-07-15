@@ -1,28 +1,49 @@
-const taskInput = document.getElementById("taskInput");
-const addTaskButton = document.getElementById("addTaskButton");
-const taskList = document.getElementById("taskList");
+document.addEventListener("DOMContentLoaded", () => {
+    // IDs corregidos para enlazar correctamente con el HTML
+    const entradaTarea = document.getElementById("task-input");
+    const entradaFecha = document.getElementById("task-date"); 
+    const botonAgregar = document.getElementById("add-task-btn");
+    const listaTareas = document.getElementById("task-list");
 
-function addTask() {
-    const taskText = taskInput.value.trim();
+    function agregarTarea() {
+        const textoTarea = entradaTarea.value.trim();
+        const fechaTarea = entradaFecha.value; 
 
-    if (taskText === "") {
-        alert("Escribe una tarea antes de agregarla.");
-        return;
+        if (textoTarea === "") {
+            alert("Escribe una tarea antes de agregarla.");
+            entradaTarea.focus();
+            return;
+        }
+
+        // TU PARTE: Validación para que no agreguen tareas sin fecha
+        if (fechaTarea === "") {
+            alert("Por favor, selecciona una fecha de vencimiento.");
+            entradaFecha.focus();
+            return;
+        }
+
+        const nuevaTarea = document.createElement("li");
+        
+        nuevaTarea.innerHTML = `
+            <span class="tarea-texto">${textoTarea}</span>
+            <span class="tarea-fecha" style="margin-left: 10px; color: #888; font-size: 0.9em;">
+                📅 ${fechaTarea}
+            </span>
+        `;
+
+        listaTareas.appendChild(nuevaTarea);
+
+        // Limpiar campos después de agregar
+        entradaTarea.value = "";
+        entradaFecha.value = ""; // Limpiar la fecha
+        entradaTarea.focus();
     }
 
-    const newTask = document.createElement("li");
-    newTask.textContent = taskText;
+    botonAgregar.addEventListener("click", agregarTarea);
 
-    taskList.appendChild(newTask);
-
-    taskInput.value = "";
-    taskInput.focus();
-}
-
-addTaskButton.addEventListener("click", addTask);
-
-taskInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        addTask();
-    }
+    entradaTarea.addEventListener("keydown", (evento) => {
+        if (evento.key === "Enter") {
+            agregarTarea();
+        }
+    });
 });
